@@ -9,8 +9,7 @@ jobs:
       - name: Discord Notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          DISCORD_EMBEDS: |
-          [
+          DISCORD_EMBEDS: '[
             {
               "title": "Action completed",
               "description": "Action finished: **${{ EVENT_PAYLOAD.repository.full_name  }}**",
@@ -19,7 +18,7 @@ jobs:
                 "url":"https://cataas.com/cat"
               }
             }
-          ]
+          ]'
         uses: Ilshidur/action-discord@0.3.2
         with:
           args: ''
