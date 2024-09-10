@@ -17,7 +17,7 @@ fi
 echo "Building $1 for $2"
 mkdir -p $GITHUB_WORKSPACE/build/${SubDirectoryLocation:-""}
 cd "$GITHUB_WORKSPACE/$5"
-$7 --headless --${mode} "$2" $GITHUB_WORKSPACE/build/${SubDirectoryLocation:-""}$1
+$GITHUB_WORKSPACE/$7 --headless --${mode} "$2" $GITHUB_WORKSPACE/build/${SubDirectoryLocation:-""}$1
 echo "Build Done"
 
 echo ::set-output name=build::build/${SubDirectoryLocation:-""}
