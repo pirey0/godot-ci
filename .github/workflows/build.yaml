@@ -42,7 +42,7 @@ jobs:
             {
               "title": "Build ${{ matrix.platform }} - ${{ job.status }}",
               "description": "The build for platform ${{ matrix.platform }} has ${{ job.status }}.",
-              "color": ${{ 3066993}},
+              "color": "${{ 3066993}}"
             }
           ]'
         uses: Ilshidur/action-discord@0.3.2
