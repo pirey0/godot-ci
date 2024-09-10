@@ -1,6 +1,10 @@
 #!/bin/sh
 set -e
 
+# Move godot templates to location engine will look up
+mkdir -v -p ~/.local/share/godot/export_templates
+cp -a $GITHUB_WORKSPACE/$8/. ~/.local/share/godot/export_templates/
+
 if [ "$3" != "" ]
 then
     SubDirectoryLocation="$3/"

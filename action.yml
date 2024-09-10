@@ -23,6 +23,11 @@ inputs:
   editorPath:
     description: 'Path to the godot editor'
     default: ""
+    required: true
+  templatesDir:
+    description: 'Path in repository to folder containing export templates'
+    default: ""
+    required: true
 runs:
   using: docker
   image: Dockerfile
@@ -34,6 +39,7 @@ runs:
     - ${{ inputs.projectDir }}
     - ${{ inputs.debugMode }}
     - ${{ inputs.editorPath }}
+    - ${{ inputs.templatesDir }}
 branding:
   icon: loader
   color: blue

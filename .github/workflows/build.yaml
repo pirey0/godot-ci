@@ -21,6 +21,7 @@ jobs:
           debugMode: "true"
           editorPath: test/engine/editor.x86_64
           projectDir: test/project/
+          templatesDir: test/engine/export_templates/
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
