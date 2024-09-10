@@ -13,6 +13,7 @@ jobs:
         with:
           lfs: true
           submodules: recursive
+
       - name: Build
         id: build
         uses: pirey0/godot-ci@main
@@ -23,16 +24,30 @@ jobs:
           editorPath: test/engine/editor.x86_64
           projectDir: test/project/
           templatesDir: test/engine/export_templates/
+
       - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Client - ${{ matrix.platform }}
           path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
+      
       - name: Discord Notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_EMBEDS: '[
+            {
+              "title": "Build ${{ matrix.platform }} - ${{ job.status }}",
+              "description": "The build for platform ${{ matrix.platform }} has ${{ job.status | toLowerCase() }}.",
+              "color": ${{ (job.status == "success") && 3066993 || 15158332 }},
+              "thumbnail": {
+                "url": "https://cataas.com/cat"
+              }
+            }
+          ]'
         uses: Ilshidur/action-discord@0.3.2
-
+        with:
+          args: ''
+          
 
 #TODO next
 #add steam upload
