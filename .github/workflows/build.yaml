@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  Godot:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -29,12 +29,26 @@ jobs:
           projectDir: test/project/
           templatesDir: test/engine/export_templates/
 
-      - name: Upload Artifact
+      - name: Upload Log Artifact
         uses: actions/upload-artifact@v4
         with:
           name: Client - ${{ matrix.platform }}
           path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
       
+      - name: Uplaod to Steam development branch
+        if: success()
+        uses: game-ci/steam-deploy@v3
+        with:
+           username: ${{ secrets.STEAM_USERNAME }}          
+           configVdf: ${{ secrets.STEAM_CONFIG_VDF}}          
+           appId: 1234560
+           buildDescription: v1.2.3
+           rootPath: build
+           depot1Path: StandaloneWindows64
+           depot1InstallScriptPath: StandaloneWindows64/install_script.vdf
+           depot2Path: StandaloneLinux64
+           releaseBranch: prerelease
+
       - name: Discord Notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
@@ -51,6 +65,6 @@ jobs:
           
 
 #TODO next
-#add steam upload
-#https://github.com/game-ci/steam-deploy
-#improve discord notifier
+#create artifact with build log instead of full build
+#find correct build number by looking at tags
+#fix steam deployment
