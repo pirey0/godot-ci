@@ -1,6 +1,10 @@
 name: Build Test Project
 
-on: workflow_dispatch
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   Godot:
@@ -37,7 +41,7 @@ jobs:
           DISCORD_EMBEDS: '[
             {
               "title": "Build ${{ matrix.platform }} - ${{ job.status }}",
-              "description": "The build for platform ${{ matrix.platform }} has ${{ job.status | toLowerCase() }}.",
+              "description": "The build for platform ${{ matrix.platform }} has ${{ job.status }}.",
               "color": ${{ (job.status == "success") && 3066993 || 15158332 }},
               "thumbnail": {
                 "url": "https://cataas.com/cat"
