@@ -11,7 +11,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          lfs: false
+          lfs: true
+          submodules: recursive
       - name: Build
         id: build
         uses: pirey0/godot-ci@main
@@ -27,3 +28,13 @@ jobs:
         with:
           name: Client - ${{ matrix.platform }}
           path: ${{ github.workspace }}/${{ steps.build.outputs.build }}
+      - name: Discord Notification
+        env:
+          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+        uses: Ilshidur/action-discord@0.3.2
+
+
+#TODO next
+#add steam upload
+#https://github.com/game-ci/steam-deploy
+#improve discord notifier
