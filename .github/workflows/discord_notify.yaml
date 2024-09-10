@@ -9,6 +9,18 @@ jobs:
       - name: Discord Notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
+          DISCORD_EMBEDS: |
+          [
+            {
+              "title": "Action completed",
+              "description": "Action finished: **${{ EVENT_PAYLOAD.repository.full_name  }}**",
+              "color": 5763719,
+              "thumbnail":{
+                "url":"https://cataas.com/cat"
+              }
+            }
+          ]
         uses: Ilshidur/action-discord@0.3.2
         with:
-          args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} sends its regards.'
+          args: ''
+          
