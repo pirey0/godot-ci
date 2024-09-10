@@ -12,7 +12,7 @@ jobs:
           DISCORD_EMBEDS: '[
             {
               "title": "Action completed",
-              "description": "Action finished: **${{ EVENT_PAYLOAD.repository.full_name  }}**",
+              "description": "Action finished",
               "color": 5763719,
               "thumbnail":{
                 "url":"https://cataas.com/cat"
