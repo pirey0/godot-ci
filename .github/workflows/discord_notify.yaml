@@ -3,10 +3,11 @@ name: Discord Test
 on: workflow_dispatch
 
 jobs:
-  Godot:
+  DiscordNotify:
     runs-on: ubuntu-latest
     steps:
       - name: Discord Notification
         env:
           DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
         uses: Ilshidur/action-discord@0.3.2
+        args: 'The project {{ EVENT_PAYLOAD.repository.full_name }} sends its regards.'
