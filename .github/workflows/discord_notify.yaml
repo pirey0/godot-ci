@@ -6,20 +6,10 @@ jobs:
   DiscordNotify:
     runs-on: ubuntu-latest
     steps:
-      - name: Discord Notification
-        env:
-          DISCORD_WEBHOOK: ${{ secrets.DISCORD_WEBHOOK }}
-          DISCORD_EMBEDS: '[
-            {
-              "title": "Action completed",
-              "description": "Action finished",
-              "color": 5763719,
-              "thumbnail":{
-                "url":"https://cataas.com/cat"
-              }
-            }
-          ]'
-        uses: Ilshidur/action-discord@0.3.2
+      - name: Build
+        id: build
+        uses: pirey0/godot-ci@main
         with:
-          args: ''
-          
+          commands: |
+            echo "hello world" 
+            echo "hello world2"

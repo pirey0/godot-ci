@@ -18,9 +18,10 @@ jobs:
       - name: Build
         id: build
         uses: pirey0/godot-ci@main
-        run: |
-          chmod +x test/pipeline/action.sh
-          /test/pipeline/action.sh
+        with:
+          commands: |
+            echo "hello world" 
+            echo "hello world2"
 
       - name: Upload Log Artifact
         uses: actions/upload-artifact@v4

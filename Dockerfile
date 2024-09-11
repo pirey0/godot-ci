@@ -17,4 +17,6 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 USER root
-CMD ["bash"]
+ADD action.sh /action.sh
+RUN chmod +x action.sh
+ENTRYPOINT ["/action.sh"]

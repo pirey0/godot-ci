@@ -1,10 +1,15 @@
-Name: "Run Godot-ready Linux"
-description: "Runs a linux instance ready to be used for building Godot"
+Name: "Build Godot"
+description: "Build a Godot project for multiple platforms"
 author: pirey0
+inputs:
+  commands:
+    description: 'Commands'
+    required: true
 runs:
   using: docker
   image: Dockerfile
-
+  args:
+    - ${{ inputs.commands }}
 branding:
   icon: loader
   color: blue
