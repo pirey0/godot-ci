@@ -21,13 +21,9 @@ jobs:
       - name: Build
         id: build
         uses: pirey0/godot-ci@main
-        with:
-          name: example
-          preset: ${{ matrix.platform }}
-          debugMode: "true"
-          editorPath: test/engine/editor.x86_64
-          projectDir: test/project/
-          templatesDir: test/engine/export_templates/
+        run: |
+        chmod +x test/pipeline/action.sh
+        /test/pipeline/action.sh
 
       - name: Upload Log Artifact
         uses: actions/upload-artifact@v4
