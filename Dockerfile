@@ -1,8 +1,9 @@
 FROM ubuntu:jammy
-LABEL author="https://github.com/aBARICHELLO/godot-ci/graphs/contributors"
 
 USER root
 ENV DEBIAN_FRONTEND=noninteractive
+
+# Install required packages and dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     ca-certificates \
     git \
@@ -14,12 +15,20 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rsync \
     wine64 \
     osslsigncode \
-	python3 \
+    python3 \
     python3-pip \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && rm -rf /var/lib/apt/lists/*
 
+# Add i386 architecture and install 32-bit libraries
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y lib32gcc-s1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Add and set up action script
 USER root
 ADD action.sh /action.sh
 RUN chmod +x action.sh
+
 ENTRYPOINT ["/action.sh"]
