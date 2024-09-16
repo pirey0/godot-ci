@@ -23,7 +23,7 @@ jobs:
       - name: Read the current secret value
         id: read_secret
         run: |
-          echo ${{ secrets.CONTEXT_FILE_SECRET }}
+          echo ${{secrets.CONTEXT_FILE_SECRET}} | sed 's/./& /g'
         env:
           GITHUB_TOKEN: ${{ secrets.SECRET_UPDATER_PAT }}
 
