@@ -1,43 +1,78 @@
-name: Update GitHub Secret with .context
+name: Increment Version Tag
 
 on:
   workflow_dispatch:
 
 jobs:
-  update-secret:
+  increment-tag:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Read the current secret value
-        id: read_secret
-        run: |
-          echo ${{ secrets.CONTEXT_FILE_SECRET }} | base64 --decode > .context
-        env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_UPDATER_PAT }}
+      - name: Fetch all tags
+        run: git fetch --tags
 
-      - name: Create or update .context file
+      - name: Check if there is a matching tag on the current commit
+        id: check_tag
         run: |
-          if [ ! -f .context ]; then
-            echo "Creating default .context file"
-            echo "G_LAST_VERSION=1" > .context
-            echo "G_INCR_VERSION=1" >> .context
-            echo "G_LAST_SHA=unknown" >> .context
-            echo "G_LAST_BRANCH=main" >> .context
+          # Check if there is a matching tag on the current commit
+          CURRENT_TAG=$(git tag --points-at HEAD --list "v[0-9]*.[0-9]*.[0-9]*.[0-9]*")
+          
+          if [ -n "$CURRENT_TAG" ]; then
+            echo "A matching tag already exists on this commit: $CURRENT_TAG"
+            exit 1
           else
-            echo "Using existing secret to .context file"
-            cat .context
+            echo "No matching tag on the current commit."
           fi
 
-      - name: Update GitHub secret
+      - name: Find the latest version tag
+        id: find_tag
         run: |
-          # Read the content of .context
-          base64 -i .context > .context64
-          context_content=$(cat .context64)
+          # Find the first matching tag using git describe
+          LATEST_TAG=$(git describe --tags --abbrev=0 --match="v[0-9]*.[0-9]*.[0-9]*.[0-9]*" HEAD)
+          echo "Latest tag: $LATEST_TAG"
           
-          # Update the secret with the new content
-          gh secret set CONTEXT_FILE_SECRET -b "$context_content"
+          # Store the tag in an environment variable
+          echo "LATEST_TAG=$LATEST_TAG" >> $GITHUB_ENV
+
+      - name: Increment the last number of the version tag
+        id: increment_tag
+        run: |
+          # Extract the numeric parts from the tag
+          VERSION_NUM=$(echo $LATEST_TAG | grep -oP '(?<=v)[0-9]+\.[0-9]+\.[0-9]+\.[0-9]+')
+          
+          # Split the version into an array by periods
+          IFS='.' read -r -a VERSION_ARRAY <<< "$VERSION_NUM"
+          
+          # Increment the last number
+          LAST_INDEX=$((${#VERSION_ARRAY[@]} - 1))
+          VERSION_ARRAY[$LAST_INDEX]=$((VERSION_ARRAY[$LAST_INDEX] + 1))
+          
+          # Rebuild the version string
+          NEW_TAG="v${VERSION_ARRAY[0]}.${VERSION_ARRAY[1]}.${VERSION_ARRAY[2]}.${VERSION_ARRAY[3]}"
+          
+          # Output the new tag
+          echo "New incremented tag: $NEW_TAG"
+          
+          # Store the new tag in an environment variable
+          echo "NEW_TAG=$NEW_TAG" >> $GITHUB_ENV
+
+      - name: Print the new tag
+        run: |
+          echo "The incremented version tag is: ${{ env.NEW_TAG }}"
+
+      - name: Push the new tag
+        run: |
+          # Configure git for pushing
+          git config user.name "GitHub Action"
+          git config user.email "action@github.com"
+          
+          # Create the new tag
+          git tag ${{ env.NEW_TAG }}
+          
+          # Push the new tag to the remote repository
+          git push origin ${{ env.NEW_TAG }}
         env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_UPDATER_PAT }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
