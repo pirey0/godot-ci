@@ -21,16 +21,11 @@ jobs:
 
       - name: Create or update .context file
         run: |
-          if [ ! -f .context ]; then
             echo "Creating default .context file"
             echo "G_LAST_VERSION=1" > .context
             echo "G_INCR_VERSION=1" >> .context
             echo "G_LAST_SHA=unknown" >> .context
             echo "G_LAST_BRANCH=main" >> .context
-          else
-            echo "Using existing secret to .context file"
-            cat .context
-          fi
 
       - name: Update GitHub secret
         run: |
