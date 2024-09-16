@@ -17,6 +17,7 @@ jobs:
           echo ${{ secrets.CONTEXT_FILE_SECRET }} | base64 --decode > .context
         env:
           GITHUB_TOKEN: ${{ secrets.SECRET_UPDATER_PAT }}
+        continue-on-error: true
 
       - name: Create or update .context file
         run: |
