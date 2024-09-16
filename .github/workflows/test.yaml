@@ -14,28 +14,28 @@ jobs:
       - name: Read the current secret value
         id: read_secret
         run: |
-          secret_value=$(gh secret view CONTEXT_FILE_SECRET --json value -q .value || echo "")
-          echo "SECRET_VALUE=${secret_value}" >> $GITHUB_ENV
+          echo ${{ secrets.CONTEXT_FILE_SECRET }} | base64 --decode > .context
         env:
           GITHUB_TOKEN: ${{ secrets.SECRET_UPDATER_PAT }}
 
       - name: Create or update .context file
         run: |
-          if [ -z "${{ env.SECRET_VALUE }}" ]; then
+          if [ ! -f .context ]; then
             echo "Creating default .context file"
             echo "G_LAST_VERSION=1" > .context
             echo "G_INCR_VERSION=1" >> .context
             echo "G_LAST_SHA=unknown" >> .context
             echo "G_LAST_BRANCH=main" >> .context
           else
-            echo "Writing existing secret to .context file"
-            echo "${{ env.SECRET_VALUE }}" > .context
+            echo "Using existing secret to .context file"
+            cat .context
           fi
 
       - name: Update GitHub secret
         run: |
           # Read the content of .context
-          context_content=$(cat .context)
+          base64 -i .context > .context64
+          context_content=$(cat .context64)
           
           # Update the secret with the new content
           gh secret set CONTEXT_FILE_SECRET -b "$context_content"
