@@ -1,89 +1,38 @@
-name: Update Version
+name: Update GitHub Secret with .context
 
 on:
   workflow_dispatch:
 
 jobs:
-  update-version:
+  update-secret:
     runs-on: ubuntu-latest
     
     steps:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Download artifact
-        id: download-artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: context-artifact
-        continue-on-error: true
-
-      - name: List directory contents
-        run: ls -la
-
-      - name: Create default context file if not found
-        if: steps.download-artifact.outcome == 'failure'
-        run: |
-          echo "G_LAST_VERSION=1" > .context
-          echo "G_INCR_VERSION=1" >> .context
-          echo "G_LAST_SHA=unknown" >> .context
-          echo "G_LAST_BRANCH=main" >> .context
-
-      - name: Verify context file
+      - name: Create default .context file if not present
         run: |
           if [ ! -f .context ]; then
-            echo "Error: .context file does not exist."
-            exit 1
-          else
-            echo ".context file exists."
+            echo "G_LAST_VERSION=1" > .context
+            echo "G_INCR_VERSION=1" >> .context
+            echo "G_LAST_SHA=unknown" >> .context
+            echo "G_LAST_BRANCH=main" >> .context
           fi
 
-      - name: Read and set environment variables
-        id: read_env
+      - name: Read the current secret value
+        id: read_secret
         run: |
-          # Read the artifact file
-          artifact_file=".context"
-          
-          # Read the file content and set the environment variables
-          while IFS= read -r line; do
-            case "$line" in
-              G_LAST_VERSION=*)
-                echo "LAST_VERSION=${line#G_LAST_VERSION=}" >> $GITHUB_ENV
-                ;;
-              G_INCR_VERSION=*)
-                echo "INCR_VERSION=${line#G_INCR_VERSION=}" >> $GITHUB_ENV
-                ;;
-              G_LAST_SHA=*)
-                echo "LAST_SHA=${line#G_LAST_SHA=}" >> $GITHUB_ENV
-                ;;
-              G_LAST_BRANCH=*)
-                echo "LAST_BRANCH=${line#G_LAST_BRANCH=}" >> $GITHUB_ENV
-                ;;
-            esac
-          done < "$artifact_file"
+          echo ${{ secrets.CONTEXT_FILE_SECRET }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_UPDATER_PAT }}
 
-      - name: Increment version
-        id: increment_version
+      - name: Update GitHub secret
         run: |
-          # Load the current increment version from the environment
-          incr_version=${{ env.INCR_VERSION }}
+          # Read the content of .context
+          context_content=$(cat .context)
           
-          # Increment the version (assuming it's a simple integer for this example)
-          new_incr_version=$((incr_version + 1))
-          
-          # Update the .context file with the new increment version
-          artifact_file=".context"
-          awk -v new_incr_version="$new_incr_version" \
-            '/G_INCR_VERSION=/ {print "G_INCR_VERSION=" new_incr_version; next} {print}' \
-            "$artifact_file" > "${artifact_file}.tmp" && mv "${artifact_file}.tmp" "$artifact_file"
-
-      - name: List directory contents again
-        run: ls -la
-
-      - name: Save updated artifact
-        if: success() || failure()
-        uses: actions/upload-artifact@v3
-        with:
-          include-hidden-files: true
-          name: context-artifact
-          path: .context
+          # Update the secret with the new content
+          gh secret set CONTEXT_FILE_SECRET -b "$context_content"
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_UPDATER_PAT }}
