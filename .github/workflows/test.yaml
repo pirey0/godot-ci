@@ -11,21 +11,26 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Create default .context file if not present
+      - name: Read the current secret value
+        id: read_secret
         run: |
-          if [ ! -f .context ]; then
+          secret_value=$(gh secret view CONTEXT_FILE_SECRET --json value -q .value || echo "")
+          echo "SECRET_VALUE=${secret_value}" >> $GITHUB_ENV
+        env:
+          GITHUB_TOKEN: ${{ secrets.SECRET_UPDATER_PAT }}
+
+      - name: Create or update .context file
+        run: |
+          if [ -z "${{ env.SECRET_VALUE }}" ]; then
+            echo "Creating default .context file"
             echo "G_LAST_VERSION=1" > .context
             echo "G_INCR_VERSION=1" >> .context
             echo "G_LAST_SHA=unknown" >> .context
             echo "G_LAST_BRANCH=main" >> .context
+          else
+            echo "Writing existing secret to .context file"
+            echo "${{ env.SECRET_VALUE }}" > .context
           fi
-
-      - name: Read the current secret value
-        id: read_secret
-        run: |
-          echo ${{secrets.CONTEXT_FILE_SECRET}} | sed 's/./& /g'
-        env:
-          GITHUB_TOKEN: ${{ secrets.SECRET_UPDATER_PAT }}
 
       - name: Update GitHub secret
         run: |
