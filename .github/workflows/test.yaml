@@ -1,4 +1,4 @@
-name: Test
+name: Update Version
 
 on:
   workflow_dispatch:
@@ -13,7 +13,7 @@ jobs:
 
       - name: Download artifact
         id: download-artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v3
         with:
           name: context-artifact
         continue-on-error: true
@@ -25,7 +25,14 @@ jobs:
           echo "G_INCR_VERSION=1" >> .context
           echo "G_LAST_SHA=unknown" >> .context
           echo "G_LAST_BRANCH=main" >> .context
-        
+
+      - name: Ensure context file exists
+        run: |
+          if [ ! -f .context ]; then
+            echo "Error: .context file does not exist."
+            exit 1
+          fi
+
       - name: Read and set environment variables
         id: read_env
         run: |
@@ -64,9 +71,10 @@ jobs:
           awk -v new_incr_version="$new_incr_version" \
             '/G_INCR_VERSION=/ {print "G_INCR_VERSION=" new_incr_version; next} {print}' \
             "$artifact_file" > "${artifact_file}.tmp" && mv "${artifact_file}.tmp" "$artifact_file"
-          
+
       - name: Save updated artifact
-        uses: actions/upload-artifact@v4
+        if: success() || failure() # Ensure this step runs even if previous steps fail
+        uses: actions/upload-artifact@v3
         with:
           name: context-artifact
           path: .context
