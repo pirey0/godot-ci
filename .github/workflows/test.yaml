@@ -18,6 +18,9 @@ jobs:
           name: context-artifact
         continue-on-error: true
 
+      - name: List directory contents
+        run: ls -la
+
       - name: Create default context file if not found
         if: steps.download-artifact.outcome == 'failure'
         run: |
@@ -26,11 +29,13 @@ jobs:
           echo "G_LAST_SHA=unknown" >> .context
           echo "G_LAST_BRANCH=main" >> .context
 
-      - name: Ensure context file exists
+      - name: Verify context file
         run: |
           if [ ! -f .context ]; then
             echo "Error: .context file does not exist."
             exit 1
+          else
+            echo ".context file exists."
           fi
 
       - name: Read and set environment variables
@@ -72,8 +77,11 @@ jobs:
             '/G_INCR_VERSION=/ {print "G_INCR_VERSION=" new_incr_version; next} {print}' \
             "$artifact_file" > "${artifact_file}.tmp" && mv "${artifact_file}.tmp" "$artifact_file"
 
+      - name: List directory contents again
+        run: ls -la
+
       - name: Save updated artifact
-        if: success() || failure() # Ensure this step runs even if previous steps fail
+        if: success() || failure()
         uses: actions/upload-artifact@v3
         with:
           name: context-artifact
