@@ -17,6 +17,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     osslsigncode \
     python3 \
     python3-pip \
+	libatomic1 \
     && ln -s /usr/bin/python3 /usr/bin/python \
     && rm -rf /var/lib/apt/lists/*
 
