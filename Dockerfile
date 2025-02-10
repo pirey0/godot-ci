@@ -17,8 +17,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     osslsigncode \
     python3 \
     python3-pip \
-	libatomic1 \
-    && ln -s /usr/bin/python3 /usr/bin/python \
+    libatomic1 \
+    libpulse-mainloop-glib0
+
+RUN ln -s /usr/bin/python3 /usr/bin/python \
     && rm -rf /var/lib/apt/lists/*
 
 # Add i386 architecture and install 32-bit libraries
