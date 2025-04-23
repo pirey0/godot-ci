@@ -21,17 +21,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     libpulse-mainloop-glib0
 
 # Install GCC 13 and set it as the default for making friends
-RUN apt-get update && \
-    apt-get install -y software-properties-common && \
+RUN apt-get install -y software-properties-common && \
     add-apt-repository ppa:ubuntu-toolchain-r/test && \
     apt-get update && \
-    apt-get install -y gcc-13 g++-13 cpp-13 && \
-    update-alternatives --install /usr/bin/gcc gcc /usr/bin/gcc-13 50 && \
-    update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-13 50 && \
-    update-alternatives --install /usr/bin/cpp cpp-bin /usr/bin/cpp-13 50 && \
-    update-alternatives --set gcc /usr/bin/gcc-13 && \
-    update-alternatives --set g++ /usr/bin/g++-13 && \
-    update-alternatives --set cpp-bin /usr/bin/cpp-13
+    apt-get install -y libstdc++6
 
 RUN ln -s /usr/bin/python3 /usr/bin/python \
     && rm -rf /var/lib/apt/lists/*
