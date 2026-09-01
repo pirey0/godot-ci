@@ -21,21 +21,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download stock Godot editor + export templates (4.4-stable, first release with Shader Baker)
+      - name: Download stock Godot editor + export templates (4.6.3-stable, matches pvkk's actual engine fork base)
         run: |
           set -e
-          mkdir -p test/shader_baker/engine/export_templates/4.4-stable
+          mkdir -p test/shader_baker/engine/export_templates/4.6.3-stable
           cd test/shader_baker/engine
 
-          wget -q https://github.com/godotengine/godot/releases/download/4.4-stable/Godot_v4.4-stable_linux.x86_64.zip
-          unzip -q Godot_v4.4-stable_linux.x86_64.zip
-          mv Godot_v4.4-stable_linux.x86_64 editor.x86_64
-          rm Godot_v4.4-stable_linux.x86_64.zip
+          wget -q https://github.com/godotengine/godot/releases/download/4.6.3-stable/Godot_v4.6.3-stable_linux.x86_64.zip
+          unzip -q Godot_v4.6.3-stable_linux.x86_64.zip
+          mv Godot_v4.6.3-stable_linux.x86_64 editor.x86_64
+          rm Godot_v4.6.3-stable_linux.x86_64.zip
 
-          wget -q https://github.com/godotengine/godot/releases/download/4.4-stable/Godot_v4.4-stable_export_templates.tpz
-          unzip -q Godot_v4.4-stable_export_templates.tpz templates/linux_release.x86_64
-          mv templates/linux_release.x86_64 export_templates/4.4-stable/linux_release.x86_64
-          rm -rf templates Godot_v4.4-stable_export_templates.tpz
+          wget -q https://github.com/godotengine/godot/releases/download/4.6.3-stable/Godot_v4.6.3-stable_export_templates.tpz
+          unzip -q Godot_v4.6.3-stable_export_templates.tpz templates/linux_release.x86_64
+          mv templates/linux_release.x86_64 export_templates/4.6.3-stable/linux_release.x86_64
+          rm -rf templates Godot_v4.6.3-stable_export_templates.tpz
 
       - name: Build image from this branch and run the Shader Baker check
         uses: ./
