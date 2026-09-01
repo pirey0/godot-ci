@@ -2,6 +2,12 @@ name: Test Shader Baker (headless, no GPU)
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - "Dockerfile"
+      - "action.sh"
+      - "test/shader_baker/**"
+      - ".github/workflows/test-shader-baker.yaml"
   pull_request:
     paths:
       - "Dockerfile"
