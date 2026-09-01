@@ -14,6 +14,10 @@ _PRESET=linux
 chmod +x "$_EDITOR_PATH"
 mkdir -p "$GITHUB_WORKSPACE/build/shader_baker_test"
 
+echo "=== Checking which renderer/device actually came up ==="
+cd "$_PROJECT_DIR"
+"$_EDITOR_PATH" --headless --script res://check_renderer.gd
+
 echo "=== Importing project ==="
 cd "$_PROJECT_DIR"
 "$_EDITOR_PATH" --headless --editor --import --quit || true
