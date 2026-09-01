@@ -35,6 +35,18 @@ RUN dpkg --add-architecture i386 \
     && apt-get install -y lib32gcc-s1 \
     && rm -rf /var/lib/apt/lists/*
 
+# Software Vulkan driver (Mesa lavapipe), so a headless Godot editor can
+# stand up a real RenderingDevice/RendererSceneRenderRD without a GPU.
+# Needed for the Shader Baker export feature, which only bakes shaders
+# when an RD-backed renderer is active -- headless mode alone isn't
+# enough, it still needs a working Vulkan device, just not a real one.
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libvulkan1 \
+    mesa-vulkan-drivers \
+    vulkan-tools \
+    && rm -rf /var/lib/apt/lists/* \
+    && vulkaninfo --summary
+
 # Add and set up action script
 USER root
 ADD action.sh /action.sh
