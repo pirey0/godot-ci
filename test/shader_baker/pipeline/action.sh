@@ -28,7 +28,10 @@ echo "=== Importing project ==="
 "$_EDITOR_PATH" --headless --editor --import --quit
 
 echo "=== Exporting (this is what triggers Shader Baker) ==="
-xvfb-run --auto-servernum -- "$_EDITOR_PATH" --rendering-driver vulkan --audio-driver Dummy --export-release "$_PRESET" "$GITHUB_WORKSPACE/build/shader_baker_test/shader_baker_test"
+xvfb-run --auto-servernum -- "$_EDITOR_PATH" --verbose --rendering-driver vulkan --audio-driver Dummy --export-release "$_PRESET" "$GITHUB_WORKSPACE/build/shader_baker_test/shader_baker_test"
+
+echo "=== Full contents of .godot/exported (ground truth, not filtered) ==="
+find "$_PROJECT_DIR/.godot/exported" 2>/dev/null | sort || echo "(.godot/exported does not exist at all)"
 
 echo "=== Verifying Shader Baker output ==="
 CACHE_DIR=$(find "$_PROJECT_DIR/.godot/exported" -type d -name shader_baker 2>/dev/null | head -n 1)
