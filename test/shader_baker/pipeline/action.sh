@@ -3,9 +3,14 @@ set -e
 
 # Targeted test for whether Godot's Shader Baker export feature can actually
 # activate inside this container. Shader Baker only bakes shaders when a real
-# RD-backed renderer (RendererSceneRenderRD) came up during the headless
-# export, which requires a working Vulkan device -- this proves that end to
-# end rather than just checking that a Vulkan ICD is installed.
+# RD-backed renderer (RendererSceneRenderRD) came up during export.
+#
+# Import doesn't need that, so it stays plain --headless (Dummy renderer,
+# fast). Export does need it: DisplayServerHeadless ignores --rendering-driver
+# and always forces the Dummy rasterizer (servers/display/display_server_headless.h),
+# so --headless can never trigger baking no matter what Vulkan drivers are
+# installed. Export instead runs under Xvfb with a real DisplayServer (X11)
+# and --rendering-driver vulkan explicit, which does honor that choice.
 
 _EDITOR_PATH="$GITHUB_WORKSPACE/test/shader_baker/engine/editor.x86_64"
 _PROJECT_DIR="$GITHUB_WORKSPACE/test/shader_baker/project"
@@ -13,25 +18,24 @@ _PRESET=linux
 
 chmod +x "$_EDITOR_PATH"
 mkdir -p "$GITHUB_WORKSPACE/build/shader_baker_test"
-
-echo "=== Checking which renderer/device actually came up ==="
 cd "$_PROJECT_DIR"
-"$_EDITOR_PATH" --headless --script res://check_renderer.gd
+
+echo "=== Checking which renderer/device actually comes up under Xvfb ==="
+xvfb-run --auto-servernum -- "$_EDITOR_PATH" --rendering-driver vulkan --audio-driver Dummy --script res://check_renderer.gd
 
 echo "=== Importing project ==="
-cd "$_PROJECT_DIR"
 "$_EDITOR_PATH" --headless --editor --import --quit || true
 "$_EDITOR_PATH" --headless --editor --import --quit
 
 echo "=== Exporting (this is what triggers Shader Baker) ==="
-"$_EDITOR_PATH" --headless --export-release "$_PRESET" "$GITHUB_WORKSPACE/build/shader_baker_test/shader_baker_test"
+xvfb-run --auto-servernum -- "$_EDITOR_PATH" --rendering-driver vulkan --audio-driver Dummy --export-release "$_PRESET" "$GITHUB_WORKSPACE/build/shader_baker_test/shader_baker_test"
 
 echo "=== Verifying Shader Baker output ==="
 CACHE_DIR=$(find "$_PROJECT_DIR/.godot/exported" -type d -name shader_baker 2>/dev/null | head -n 1)
 
 if [ -z "$CACHE_DIR" ]; then
     echo "FAIL: no shader_baker cache directory was produced at all."
-    echo "Shader Baker did not activate -- no RD-backed renderer (RendererSceneRenderRD) came up headless, so the Vulkan fix did not take effect."
+    echo "Shader Baker did not activate -- no RD-backed renderer (RendererSceneRenderRD) came up, so the fix did not take effect."
     exit 1
 fi
 
